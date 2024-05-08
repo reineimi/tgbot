@@ -11,7 +11,7 @@ npm install --prefix ~/.tgbot grammy;
 sed -i 's/  }/  },\n  "type": "module"/' ~/.tgbot/package.json;
 
 echo 'Retrieving the bot...';
-curl -LO https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
+curl -o ~/.tgbot/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
 echo "alias tgbot='node ~/.tgbot/tgbot.js';" >> ~/.bashrc;
 
 echo 'Running the bot...';
