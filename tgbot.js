@@ -18,23 +18,29 @@ Sources:
 
 (All of the files must be in the main directory/repo)
 */
-import { Bot, Context, InputFile, Keyboard } from "grammy";
-const bot_token = 'insert_your_token_here';
+import { Bot, Context, InputFile, Keyboard } from 'grammy';
+const bot_token = null;
 const bot = new Bot(bot_token);
 const commands = [];
 const keywords = [];
 const settings = {
-	github: 'username/repository',
+	github: null,
 	commandsMenu: false,
 	keywordsMenu: true,
 };
 let URL = '';
 
+if (!bot_token) {
+	console.log('\n[!] Please set [bot_token] parameter');
+	process.exit();
+}
+
 if (settings.github) {
 	console.log(`\nGitHub repo: https://github.com/${settings.github}\n`);
 	URL = `https://raw.githubusercontent.com/${settings.github}/main/`;
 } else {
-	console.log('[!] Please set [settings.github] parameter');
+	console.log('\n[!] Please set [settings.github] parameter');
+	process.exit();
 }
 
 // Load "settings.json" or use default
@@ -48,7 +54,7 @@ try {
 		}
 	});
 } catch (err) {
-	console.log('[!] File "settings.json" not found; falling back to default settings');
+	console.log('\n[!] File "settings.json" not found; falling back to default settings');
 }
 
 // Create a new command
@@ -104,7 +110,7 @@ try {
 		}
 	});
 } catch (err) {
-	console.log(`[!] File "${URL}commands.json" not found`);
+	console.log(`\n[!] File "${URL}commands.json" not found`);
 	console.log('Traceback: '+err);
 }
 
@@ -120,7 +126,7 @@ try {
 		}
 	});
 } catch (err) {
-	console.log(`[!] File "${URL}keywords.json" not found`);
+	console.log(`\n[!] File "${URL}keywords.json" not found`);
 	console.log('Traceback: '+err);
 }
 
