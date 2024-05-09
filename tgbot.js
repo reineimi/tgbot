@@ -19,7 +19,11 @@ Sources:
 (All of the files must be in the main directory/repo)
 */
 import { Bot, Context, InputFile, Keyboard } from 'grammy';
-const bot_token = null;
+let bot_token = null;
+if (!bot_token) {
+	console.log('\n[!] Please set [bot_token] parameter\n');
+	process.exit();
+}
 const bot = new Bot(bot_token);
 const commands = [];
 const keywords = [];
@@ -30,16 +34,12 @@ const settings = {
 };
 let URL = '';
 
-if (!bot_token) {
-	console.log('\n[!] Please set [bot_token] parameter');
-	process.exit();
-}
-
 if (settings.github) {
+	settings.github = settings.github.replaceAll(' ', '/');
 	console.log(`\nGitHub repo: https://github.com/${settings.github}\n`);
 	URL = `https://raw.githubusercontent.com/${settings.github}/main/`;
 } else {
-	console.log('\n[!] Please set [settings.github] parameter');
+	console.log('\n[!] Please set [settings.github] parameter\n');
 	process.exit();
 }
 
@@ -130,11 +130,11 @@ try {
 	console.log('Traceback: '+err);
 }
 
-if (settings.commandsMenu) {
+if (settings.commandsMenu && (commands.length > 0)) {
 	await bot.api.setMyCommands(commands);
 }
 let keyboard;
-if (settings.keywordsMenu) {
+if (settings.keywordsMenu && (keywords.length > 0)) {
 	let buttonRows = keywords.map((keyword) => [Keyboard.text(keyword)]);
 	keyboard = Keyboard.from(buttonRows).resized();
 }
