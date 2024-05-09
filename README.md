@@ -69,12 +69,6 @@ A list of commands with the following syntax:
 
 Once you've added a command, create the corresponding `.md` document file in the same directory:<br>
 `command.md` (example: `test.md`).
-<br><br>
-⚠️ **IMPORTANT** ⚠️<br>
-If you're using a local path instead of GitHub repo, the format of the `.md` file must be changed to `.json`, for example:
-```json
-["Some **text**"]
-```
 
 #
 ## keywords.json
