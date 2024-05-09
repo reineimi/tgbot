@@ -3,6 +3,30 @@ Simply open Linux/Android (Termux) terminal and run:
 ```
 curl -LO bit.ly/tgbot_ei; sh tgbot_ei
 ```
+#
+Or, manually:
+## 1. Install Node.js
+**Linux:** `nodejs` and `npm` packages
+
+**Windows:** https://nodejs.org/en/download
+
+**Android (Termux):**
+```sh
+pkg upgrade; pkg install nodejs
+```
+
+## 2. Install Grammy.js
+Create a folder(s) in your preferred directory (let's call it `DIR`) and run:
+```sh
+npm install --prefix DIR grammy
+```
+
+## 3. Download tgbot.js
+Download [tgbot.js](https://github.com/reineimi/tgbot/blob/main/tgbot.js) or clone/unzip the whole repo in the same `DIR`.
+
+## 4. Configure the bot
+In the same `DIR`, addd and/or modify `conf.json` as you need.
+
 <hr>
 
 # Files
