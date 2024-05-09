@@ -21,13 +21,14 @@ Sources:
 import { Bot, Context, InputFile, Keyboard } from 'grammy';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
+const path = require('path');
 let conf; try {
 	conf = require("./conf.json");
 } catch {
 	console.log('\n[!] Please add [conf.json] file to your project\n');
 	process.exit();
 }
-console.log(conf);
+console.log('[i] Configuration:', conf, '\n');
 let bot_token = conf.bot_token;
 if (!bot_token) {
 	console.log('\n[!] Please set [bot_token] parameter\n');
@@ -40,35 +41,59 @@ const settings = {
 	github: conf.github,
 	commandsMenu: conf.commandsMenu,
 	keywordsMenu: conf.keywordsMenu,
+	localFiles: conf.localFiles,
+	localPath: conf.localPath,
 };
 let URL = '';
 
-if (settings.github) {
+// Set URL to local dir or GitHub repo
+if (settings.github && (settings.github !== '') && (!settings.localFiles)) {
 	settings.github = settings.github.replaceAll(' ', '/');
-	console.log(`\nGitHub repo: https://github.com/${settings.github}\n`);
+	console.log(`[i] GitHub repo: https://github.com/${settings.github}\n`);
 	URL = `https://raw.githubusercontent.com/${settings.github}/main/`;
 } else {
-	console.log('\n[!] Please set [settings.github] parameter\n');
-	process.exit();
+	settings.localFiles = true;
+	if (settings.localPath) {
+		URL = path.join(process.cwd(), settings.localPath+'/');
+	} else {
+		URL = path.join(process.cwd(), '.tgbot/files/');
+	}
+	console.log(`[i] GitHub information is not set. Using local directory: ${URL}\n`);
 }
 
 // Create a new command
 async function cmd_new(name) {
-	try {
-		await fetch (URL+`${name}.md`)
-		.then(r_file => r_file.text())
-		.then(data => {
+	if (!settings.localFiles) {
+		try {
+			await fetch (`${URL+name}.md`)
+			.then(r_file => r_file.text())
+			.then(data => {
+				bot.command(name, async (ctx) => {
+					await bot.api.raw.sendMessage({
+						chat_id: ctx.msg.chat.id,
+						text: data,
+						parse_mode: "Markdown",
+						reply_markup: keyboard || {},
+					});
+				});
+			});
+		} catch(err) {
+			console.log(`[!] File "${name}.md" not found\n`);
+		}
+	} else {
+		try {
+			let data = require(`${URL+name}.json`);
 			bot.command(name, async (ctx) => {
 				await bot.api.raw.sendMessage({
 					chat_id: ctx.msg.chat.id,
-					text: data,
+					text: data[0],
 					parse_mode: "Markdown",
-					reply_markup: keyboard || {},
+					reply_markup: keyboard,
 				});
 			});
-		});
-	} catch(err) {
-		console.log(`[!] File "${name}.md" not found`);
+		} catch(err) {
+			console.log(`[!] File "${name}.json" not found\n`);
+		}
 	}
 }
 
@@ -83,19 +108,40 @@ async function kwd_new(phrase, file_URL) {
 
 	try {
 		bot.hears(phrase, async (ctx) => {
-			await ctx.replyWithPhoto(new InputFile({ url: xURL }));
+			if (!settings.localFiles) {
+				await ctx.replyWithPhoto(new InputFile({ url: xURL }));
+			} else {
+				await ctx.replyWithPhoto(new InputFile(xURL));
+			}
 		});
 	} catch(err) {
-		console.log(`[!] File "${keyword_filename}" not found`);
+		console.log(`[!] File "${xURL}" not found\n`);
 	}
 }
 
 // Get a list of commands
-try {
-	await fetch (`${URL}commands.json`)
-	.then(r_file => r_file.json())
-	.then(data => {
-		console.log('\nCommands: ', data);
+if (!settings.localFiles) {
+	try {
+		await fetch (`${URL}commands.json`)
+		.then(r_file => r_file.json())
+		.then(data => {
+			console.log('[+] Commands: ', data, '\n');
+			for (const [i, v] of Object.entries(data)) {
+				commands.push({
+					command: i,
+					description: v
+				});
+				cmd_new(i);
+			}
+		});
+	} catch (err) {
+		console.log(`[!] File "${URL}commands.json" not found`);
+		console.log('[>] Traceback: '+err+' [<]\n');
+	}
+} else {
+	try {
+		let data = require(`${URL}commands.json`);
+		console.log('[+] Commands: ', data, '\n');
 		for (const [i, v] of Object.entries(data)) {
 			commands.push({
 				command: i,
@@ -103,33 +149,47 @@ try {
 			});
 			cmd_new(i);
 		}
-	});
-} catch (err) {
-	console.log(`\n[!] File "${URL}commands.json" not found`);
-	console.log('>> Traceback: '+err);
+	} catch (err) {
+		console.log(`[!] File "${URL}commands.json" not found`);
+		console.log('[>] Traceback: '+err+' [<]\n');
+	}
 }
 
 // Get a list of keywords
-try {
-	await fetch (`${URL}keywords.json`)
-	.then(r_file => r_file.json())
-	.then(data => {
-		console.log('\nKeywords: ', data);
+if (!settings.localFiles) {
+	try {
+		await fetch (`${URL}keywords.json`)
+		.then(r_file => r_file.json())
+		.then(data => {
+			console.log('[+] Keywords: ', data, '\n');
+			for (const [i, v] of Object.entries(data)) {
+				keywords.push(i);
+				kwd_new(i, v);
+			}
+		});
+	} catch (err) {
+		console.log(`[!] File "${URL}keywords.json" not found`);
+		console.log('[>] Traceback: '+err+' [<]\n');
+	}
+} else {
+	try {
+		let data = require(`${URL}keywords.json`);
+		console.log('[+] Keywords: ', data, '\n');
 		for (const [i, v] of Object.entries(data)) {
 			keywords.push(i);
 			kwd_new(i, v);
 		}
-	});
-} catch (err) {
-	console.log(`\n[!] File "${URL}keywords.json" not found`);
-	console.log('>> Traceback: '+err);
+	} catch(err) {
+		console.log(`[!] File "${URL}keywords.json" not found`);
+		console.log('[>] Traceback: '+err+' [<]\n');
+	}
 }
 
-if (settings.commandsMenu && (commands.length > 0)) {
+if (settings.commandsMenu && (settings.commandsMenu !== '') && (commands.length > 0)) {
 	await bot.api.setMyCommands(commands);
 }
-let keyboard;
-if (settings.keywordsMenu && (keywords.length > 0)) {
+let keyboard = {};
+if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length > 0)) {
 	let buttonRows = keywords.map((keyword) => [Keyboard.text(keyword)]);
 	keyboard = Keyboard.from(buttonRows).resized();
 }
