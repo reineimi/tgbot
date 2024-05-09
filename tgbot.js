@@ -47,7 +47,7 @@ const settings = {
 let URL = '';
 
 // Set URL to local dir or GitHub repo
-if (settings.github && (settings.github !== '/') && (!settings.localFiles)) {
+if (settings.github && (settings.github !== '') && (settings.github !== '/') && (!settings.localFiles)) {
 	settings.github = settings.github.replaceAll(' ', '/');
 	console.log(`[i] GitHub repo: https://github.com/${settings.github}\n`);
 	URL = `https://raw.githubusercontent.com/${settings.github}/main/`;
@@ -73,7 +73,7 @@ async function cmd_new(name) {
 						chat_id: ctx.msg.chat.id,
 						text: data,
 						parse_mode: "Markdown",
-						reply_markup: keyboard || {},
+						reply_markup: keyboard,
 					});
 				});
 			});
@@ -109,9 +109,9 @@ async function kwd_new(phrase, file_URL) {
 	try {
 		bot.hears(phrase, async (ctx) => {
 			if (!settings.localFiles) {
-				await ctx.replyWithPhoto(new InputFile({ url: xURL }));
+				await ctx.replyWithPhoto(new InputFile({ url: xURL }), { reply_markup: keyboard });
 			} else {
-				await ctx.replyWithPhoto(new InputFile(xURL));
+				await ctx.replyWithPhoto(new InputFile(xURL), { reply_markup: keyboard });
 			}
 		});
 	} catch(err) {
@@ -185,6 +185,7 @@ if (!settings.localFiles) {
 	}
 }
 
+// Set visibility of the menus
 if (settings.commandsMenu && (settings.commandsMenu !== '') && (commands.length > 0)) {
 	await bot.api.setMyCommands(commands);
 }
@@ -193,4 +194,15 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 	let buttonRows = keywords.map((keyword) => [Keyboard.text(keyword)]);
 	keyboard = Keyboard.from(buttonRows).resized();
 }
+
+// Initiate and get keywords menu, if available
+bot.command('start', async (ctx) => {
+	await bot.api.raw.sendMessage({
+		chat_id: ctx.msg.chat.id,
+		text: 'Hello! 😸',
+		parse_mode: "Markdown",
+		reply_markup: keyboard,
+	});
+});
+
 bot.start();
