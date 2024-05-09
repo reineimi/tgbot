@@ -19,12 +19,12 @@ if [ "$skip" != 'y' ]; then
 	read -p '>> Enter your GitHub username: ' gh_user;
 	read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
 	touch ~/.tgbot/conf.json;
-	echo '{
-		"bot_token": "$bot_token",
-		"github": "$gh_user/$gh_repo",
-		"commandsMenu": false,
-		"keywordsMenu": true
-	}';
+echo '{
+	"bot_token": "'"$bot_token"'",
+	"github": "'"$gh_user"'/'"$gh_repo"'",
+	"commandsMenu": false,
+	"keywordsMenu": true
+}' >> ~/.tgbot/conf.json;
 fi
 
 # Making and running the bot
