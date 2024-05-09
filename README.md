@@ -3,8 +3,10 @@ Simply open Linux/Android (Termux) terminal and run:
 ```
 curl -LO bit.ly/tgbot_ei; sh tgbot_ei
 ```
+<hr>
+
 # Files
-> Note: Every file except "conf.json" must be put on your test github repository.
+> Note: Every file must be stored in either the same directory as `tgbot.js`, or your local GitHub repository. The only exception is `conf.json`, which cannot be stored on GitHub.
 
 ## conf.json
 Will be generated from `install.sh` or created manually. Contains:
