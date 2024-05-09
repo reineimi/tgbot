@@ -22,6 +22,7 @@ import { Bot, Context, InputFile, Keyboard } from 'grammy';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const path = require('path');
+const fs = require('node:fs');
 let conf; try {
 	conf = require("./conf.json");
 } catch {
@@ -81,19 +82,20 @@ async function cmd_new(name) {
 			console.log(`[!] File "${name}.md" not found\n`);
 		}
 	} else {
-		try {
-			let data = require(`${URL+name}.json`);
+		fs.readFile(`${URL+name}.md`, 'utf8', (err, data) => {
+			if (err) {
+				console.log(`[!] File "${name}.json" not found\n`);
+				return;
+			}
 			bot.command(name, async (ctx) => {
 				await bot.api.raw.sendMessage({
 					chat_id: ctx.msg.chat.id,
-					text: data[0],
+					text: data,
 					parse_mode: "Markdown",
 					reply_markup: keyboard,
 				});
 			});
-		} catch(err) {
-			console.log(`[!] File "${name}.json" not found\n`);
-		}
+		});
 	}
 }
 
