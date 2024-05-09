@@ -47,7 +47,7 @@ const settings = {
 let URL = '';
 
 // Set URL to local dir or GitHub repo
-if (settings.github && (settings.github !== '') && (!settings.localFiles)) {
+if (settings.github && (settings.github !== '/') && (!settings.localFiles)) {
 	settings.github = settings.github.replaceAll(' ', '/');
 	console.log(`[i] GitHub repo: https://github.com/${settings.github}\n`);
 	URL = `https://raw.githubusercontent.com/${settings.github}/main/`;

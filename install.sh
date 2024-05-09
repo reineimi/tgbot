@@ -1,7 +1,6 @@
 # Installing Node.js and Grammy
-read -p '>> Installation path (ex: ~/.tgbot): ' root;
-read -p '>> Skip installation process? (Y/n): ' skip;
-if [ "$skip" == 'n' ]; then
+read -p '>> Skip installation process? (y/N): ' skip;
+if [ "$skip" != 'y' ]; then
 	# Updating database and installing NodeJS
 	cd; echo 'Testing for Arch Linux...';
 	sudo pacman -Syy nodejs npm;
@@ -12,11 +11,11 @@ if [ "$skip" == 'n' ]; then
 
 	# Installing GrammyJS and setting up local path
 	echo 'Installing grammy.js...';
-	mkdir -p $root;
-	npm install --prefix $root grammy;
-	sed -i 's/  }/  },\n  "type": "module"/' $root/package.json;
-	echo "alias tgbot='clear; node ""$root""/tgbot.js';" >> ~/.bashrc;
-	echo "alias tgbot='clear; node ""$root""/tgbot.js';" >> /data/data/com.termux/files/usr/etc/bash.bashrc;
+	mkdir .tgbot;
+	npm install --prefix ~/.tgbot grammy;
+	sed -i 's/  }/  },\n  "type": "module"/' ~/.tgbot/package.json;
+	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> ~/.bashrc;
+	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> /data/data/com.termux/files/usr/etc/bash.bashrc;
 
 	# Generating [conf.json] file
 	read -p '>> (REQUIRED) Telegram bot token: ' bot_token;
@@ -26,21 +25,21 @@ if [ "$skip" == 'n' ]; then
 	read -p '>> Prefer local path over GitHub? (true/false): ' is_local;
 	read -p '>> Enable commands menu? (true/false): ' cmd_menu;
 	read -p '>> Enable keywords menu? (true/false): ' kwd_menu;
-	touch $root/conf.json;
+	touch ~/.tgbot/conf.json;
 echo '{
 	"bot_token": "'"$bot_token"'",
 	"github": "'"$gh_user"'/'"$gh_repo"'",
 	"localFiles": '"$is_local"',
 	"localPath": "'"$local_path"'",
 	"commandsMenu": '"$cmd_menu"',
-	"keywordsMenu": '"$kwd_menu"',
-}' >> $root/conf.json;
+	"keywordsMenu": '"$kwd_menu"'
+}' >> ~/.tgbot/conf.json;
 fi
 
 # Making and running the bot
 echo '\nRetrieving/updating the bot...';
-curl -o $root/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
+curl -o ~/.tgbot/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
 
 echo 'Running the bot...';
-node $root/tgbot.js;
+node ~/.tgbot/tgbot.js;
 rm -f tgbot_ei;
