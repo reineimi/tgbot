@@ -19,7 +19,16 @@ Sources:
 (All of the files must be in the main directory/repo)
 */
 import { Bot, Context, InputFile, Keyboard } from 'grammy';
-let bot_token = null;
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+let conf; try {
+	conf = require("./conf.json");
+} catch {
+	console.log('\n[!] Please add [conf.json] file to your project\n');
+	process.exit();
+}
+console.log(conf);
+let bot_token = conf.bot_token;
 if (!bot_token) {
 	console.log('\n[!] Please set [bot_token] parameter\n');
 	process.exit();
@@ -28,9 +37,9 @@ const bot = new Bot(bot_token);
 const commands = [];
 const keywords = [];
 const settings = {
-	github: null,
-	commandsMenu: false,
-	keywordsMenu: true,
+	github: conf.github,
+	commandsMenu: conf.commandsMenu,
+	keywordsMenu: conf.keywordsMenu,
 };
 let URL = '';
 
@@ -41,20 +50,6 @@ if (settings.github) {
 } else {
 	console.log('\n[!] Please set [settings.github] parameter\n');
 	process.exit();
-}
-
-// Load "settings.json" or use default
-try {
-	await fetch (`${URL}settings.json`)
-	.then(r_file => r_file.json())
-	.then(data => {
-		console.log('\nSettings: ', data);
-		for (const [i, v] of Object.entries(data)) {
-			settings[i] = v;
-		}
-	});
-} catch (err) {
-	console.log('\n[!] File "settings.json" not found; falling back to default settings');
 }
 
 // Create a new command

@@ -13,13 +13,19 @@ if [ "$skip" != 'y' ]; then
 	npm install --prefix ~/.tgbot grammy;
 	sed -i 's/  }/  },\n  "type": "module"/' ~/.tgbot/package.json;
 	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> ~/.bashrc;
+	
+	# Generating [conf.json] file
+	read -p '>> Enter your Telegram bot token: ' bot_token;
+	read -p '>> Enter your GitHub username: ' gh_user;
+	read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
+	touch ~/.tgbot/conf.json;
+	echo '{
+		"bot_token": "$bot_token",
+		"github": "$gh_user/$gh_repo",
+		"commandsMenu": false,
+		"keywordsMenu": true
+	}';
 fi
-
-# Getting bot token and github repo
-read -p '>> Enter your Telegram bot token: ' bot_token;
-read -p '>> Enter your GitHub username: ' gh_user;
-read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
-github="$gh_user\/$gh_repo";
 
 # Making and running the bot
 echo '\nRetrieving/updating the bot...';
