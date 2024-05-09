@@ -7,7 +7,7 @@ curl -LO bit.ly/tgbot_ei; sh tgbot_ei
 > Note: Every file except "conf.json" must be put on your test github repository.
 
 ## conf.json
-Will be generated from "install.sh" or created manually. Contains:
+Will be generated from `install.sh` or created manually. Contains:
 ```json
 {
   "bot_token": "here",
