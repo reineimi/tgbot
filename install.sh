@@ -15,25 +15,11 @@ if [ "$skip" != 'y' ]; then
 	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> ~/.bashrc;
 fi
 
-# Reading bot token and github repo
-readarray -t lines < <(cat ~/.tgbot/data.txt);
-ln=0; bot_token=0; github=0;
-for line in "${lines[@]}"; do
-	((++ln));
-	if [ "$line" != 'No such file' ]; then
-		if [ "$ln" == 1 ]; then
-			bot_token="$line";
-		elif [ "$ln" == 2 ]; then
-			github="$line";
-		fi
-	fi
-done
-if [ "$ln" == 0 ]; then
-	read -p '>> Enter your Telegram bot token: ' bot_token;
-	read -p '>> Enter your GitHub username: ' gh_user;
-	read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
-	github="$gh_user\/$gh_repo";
-fi
+# Getting bot token and github repo
+read -p '>> Enter your Telegram bot token: ' bot_token;
+read -p '>> Enter your GitHub username: ' gh_user;
+read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
+github="$gh_user\/$gh_repo";
 
 # Making and running the bot
 echo '\nRetrieving/updating the bot...';
