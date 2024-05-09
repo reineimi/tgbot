@@ -1,6 +1,6 @@
 # Installing Node.js and Grammy
 read -p '>> Skip installation process? (y/N): ' skip;
-if [[ "$skip" != 'y' ]]; then 
+if [ "$skip" != 'y' ]; then
 	cd; echo 'Testing for Arch Linux...';
 	sudo pacman -Syy nodejs npm;
 
@@ -20,15 +20,15 @@ readarray -t lines < <(cat ~/.tgbot/data.txt);
 ln=0; bot_token=0; github=0;
 for line in "${lines[@]}"; do
 	((++ln));
-	if [[ "$line" != 'No such file' ]]; then
-		if [[ "$ln" == 1 ]]; then
+	if [ "$line" != 'No such file' ]; then
+		if [ "$ln" == 1 ]; then
 			bot_token="$line";
-		elif [[ "$ln" == 2 ]]; then
+		elif [ "$ln" == 2 ]; then
 			github="$line";
 		fi
 	fi
 done
-if [[ "$ln" == 0 ]]; then
+if [ "$ln" == 0 ]; then
 	read -p '>> Enter your Telegram bot token: ' bot_token;
 	read -p '>> Enter your GitHub username: ' gh_user;
 	read -p '>> Enter your GitHub repo for bot configs: ' gh_repo;
