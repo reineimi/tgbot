@@ -6,8 +6,6 @@ curl -LO bit.ly/tgbot_ei; sh tgbot_ei
 <hr>
 
 # Files
-> Note: Every file must be stored in either the same directory as `tgbot.js`, or your local GitHub repository. The only exception is `conf.json`, which cannot be stored on GitHub.
-
 ## conf.json
 Will be generated from `install.sh` or created manually. Contains:
 ```json
