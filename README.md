@@ -14,6 +14,8 @@ Will be generated from `install.sh` or created manually. Contains:
 {
   "bot_token": "here",
   "github": "user/repo",
+  "localFiles": true,
+  "localPath": ".tgbot/files",
   "commandsMenu": false,
   "keywordsMenu": true
 }
@@ -23,6 +25,10 @@ From which:
 
 - `github` Your GitHub username and repository, taken from:<br>
 **https:// github.com /`user` /`repo`**
+
+- `localFiles` Use local home (`~/...`) subdirectory instead of GitHub repo?
+
+- `localPath` Home subdirectory path
 
 - `commandsMenu` A button with commands list in the chat
 
@@ -41,6 +47,12 @@ A list of commands with the following syntax:
 
 Once you've added a command, create the corresponding `.md` document file in the same directory:<br>
 `command.md` (example: `test.md`).
+<br><br>
+⚠️ **IMPORTANT** ⚠️<br>
+If you're using a local path instead of GitHub repo, the format of the `.md` file must be changed to `.json`, for example:
+```json
+["Some **text**"]
+```
 
 #
 ## keywords.json
@@ -54,3 +66,8 @@ A list of keywords (phrases) with the following syntax:
 > Note: Keywords are buttons/phrases with associated images.
 
 Same as with commands, we create corresponding files (ex: `example.jpg`) for every keyword.
+
+<hr>
+
+# Examples
+You can take a look at examples in [this](https://github.com/reineimi/tgbot/tree/main/example) folder.
