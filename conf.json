@@ -1,0 +1,8 @@
+{
+  "bot_token": "",
+  "github": "reineimi/tgbot",
+  "commandsMenu": false,
+  "keywordsMenu": true,
+  "localFiles": true,
+  "localPath": "Documents/tgbot/example"
+}
