@@ -13,6 +13,7 @@ if [ "$skip" != 'y' ]; then
 	npm install --prefix ~/.tgbot grammy;
 	sed -i 's/  }/  },\n  "type": "module"/' ~/.tgbot/package.json;
 	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> ~/.bashrc;
+	echo "alias tgbot='clear; node ~/.tgbot/tgbot.js';" >> /data/data/com.termux/files/usr/etc/bash.bashrc;
 	
 	# Generating [conf.json] file
 	read -p '>> Enter your Telegram bot token: ' bot_token;
@@ -30,9 +31,6 @@ fi
 # Making and running the bot
 echo '\nRetrieving/updating the bot...';
 curl -o ~/.tgbot/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
-
-sed -i "s/bot_token = null/bot_token = '$bot_token'/" ~/.tgbot/tgbot.js;
-sed -i "s/github: null/github: '$github'/" ~/.tgbot/tgbot.js;
 
 echo 'Running the bot...';
 node ~/.tgbot/tgbot.js;

@@ -106,7 +106,7 @@ try {
 	});
 } catch (err) {
 	console.log(`\n[!] File "${URL}commands.json" not found`);
-	console.log('Traceback: '+err);
+	console.log('>> Traceback: '+err);
 }
 
 // Get a list of keywords
@@ -122,7 +122,7 @@ try {
 	});
 } catch (err) {
 	console.log(`\n[!] File "${URL}keywords.json" not found`);
-	console.log('Traceback: '+err);
+	console.log('>> Traceback: '+err);
 }
 
 if (settings.commandsMenu && (commands.length > 0)) {
