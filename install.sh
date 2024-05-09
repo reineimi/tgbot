@@ -1,5 +1,5 @@
 # Installing Node.js and Grammy
-read -p '>> Installation path (ex: "$root"/): ' root;
+read -p '>> Installation path (ex: ~/.tgbot): ' root;
 read -p '>> Skip installation process? (Y/n): ' skip;
 if [ "$skip" == 'n' ]; then
 	# Updating database and installing NodeJS
@@ -12,9 +12,9 @@ if [ "$skip" == 'n' ]; then
 
 	# Installing GrammyJS and setting up local path
 	echo 'Installing grammy.js...';
-	mkdir -p "$root";
-	npm install --prefix "$root" grammy;
-	sed -i 's/  }/  },\n  "type": "module"/' "$root"/package.json;
+	mkdir -p $root;
+	npm install --prefix $root grammy;
+	sed -i 's/  }/  },\n  "type": "module"/' $root/package.json;
 	echo "alias tgbot='clear; node ""$root""/tgbot.js';" >> ~/.bashrc;
 	echo "alias tgbot='clear; node ""$root""/tgbot.js';" >> /data/data/com.termux/files/usr/etc/bash.bashrc;
 
@@ -26,7 +26,7 @@ if [ "$skip" == 'n' ]; then
 	read -p '>> Prefer local path over GitHub? (true/false): ' is_local;
 	read -p '>> Enable commands menu? (true/false): ' cmd_menu;
 	read -p '>> Enable keywords menu? (true/false): ' kwd_menu;
-	touch "$root"/conf.json;
+	touch $root/conf.json;
 echo '{
 	"bot_token": "'"$bot_token"'",
 	"github": "'"$gh_user"'/'"$gh_repo"'",
@@ -34,13 +34,13 @@ echo '{
 	"localPath": "'"$local_path"'",
 	"commandsMenu": '"$cmd_menu"',
 	"keywordsMenu": '"$kwd_menu"',
-}' >> "$root"/conf.json;
+}' >> $root/conf.json;
 fi
 
 # Making and running the bot
 echo '\nRetrieving/updating the bot...';
-curl -o "$root"/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
+curl -o $root/tgbot.js https://raw.githubusercontent.com/reineimi/tgbot/main/tgbot.js;
 
 echo 'Running the bot...';
-node "$root"/tgbot.js;
+node $root/tgbot.js;
 rm -f tgbot_ei;
