@@ -1,9 +1,9 @@
 {
   "bot_token": "",
   "dev_chat_id": "",
-  "github": "reineimi/tgbot",
+  "github": "/",
   "commandsMenu": false,
   "keywordsMenu": true,
   "localFiles": true,
-  "localPath": "Documents/tgbot/example"
+  "localPath": ""
 }
