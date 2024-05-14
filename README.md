@@ -6,7 +6,7 @@ Initial commands:<br><br>
 `/js ...`
 > Execute JavaScript in `dev_chat_id` chat room
 #
-Other examples can be found [here](https://github.com/reineimi/tgbot/tree/main/example).
+Examples can be found [here](https://github.com/reineimi/tgbot/tree/main/example).
 
 # Installation
 Simply open Linux/Android (Termux) terminal and run:
