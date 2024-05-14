@@ -16,7 +16,7 @@ node /Your/Bot/Path/tgbot.js
 #
 **Examples of files can be found [here](https://github.com/reineimi/tgbot/tree/main/example).**
 
-<hr>
+<br><br><hr>
 
 # Installation
 Simply open Linux/Android (Termux) terminal and run:
@@ -46,7 +46,7 @@ Download [tgbot.js](https://github.com/reineimi/tgbot/blob/main/tgbot.js) or clo
 ## 4. Configure the bot
 In the same `DIR`, add and/or modify `conf.json` as you need.
 
-<hr>
+<br><br><hr>
 
 # Files
 ## conf.json
@@ -113,7 +113,7 @@ A list of keywords (phrases) with the following syntax:
 
 Same as with commands, we create corresponding files (ex: `example.jpg`) for every keyword.
 
-<hr>
+<br><br><hr>
 
 # Examples
 You can take a look at examples in [this](https://github.com/reineimi/tgbot/tree/main/example) folder.
