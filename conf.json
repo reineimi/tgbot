@@ -1,5 +1,6 @@
 {
   "bot_token": "",
+  "dev_chat_id": "",
   "github": "reineimi/tgbot",
   "commandsMenu": false,
   "keywordsMenu": true,
