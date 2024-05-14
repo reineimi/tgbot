@@ -109,9 +109,10 @@ A list of keywords (phrases) with the following syntax:
   "A test": "example.jpg"
 }
 ```
-> Note: Keywords are buttons/phrases with associated images.
+> Note: Keywords are buttons/phrases with associated images and text documents.
 
-Same as with commands, we create corresponding files (ex: `example.jpg`) for every keyword.
+Same as with commands, we create corresponding files for every keyword, for example:<br>
+`example.jpg` and `example.md`.
 
 <br><br><hr>
 

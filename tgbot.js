@@ -66,15 +66,16 @@ function date() {
 	return `${mm}-${dd} ${h}:${m}:${s}`
 }
 function log(ctx_msg) {
-	console.log(`
--- ${date()} --
+	console.log(
+`-- ${date()} --
 | in: ${ctx_msg.chat.id}
 | from: ${ctx_msg.from.id}
 | username: ${ctx_msg.from.username}
 | message: ${ctx_msg.text}
--- -- -- -- -- -- --`);
+-- -- -- -- -- -- --
+`);
 }
-async function msg(ctx, text, isMd) {
+async function msg(ctx, text, isMd, noLog) {
 	const data = {
 		chat_id: ctx.msg.chat.id,
 		text: text,
@@ -84,7 +85,7 @@ async function msg(ctx, text, isMd) {
 		data.parse_mode = 'Markdown'
 	}
 	await bot.api.raw.sendMessage(data);
-	log(ctx.msg);
+	if (!noLog) { log(ctx.msg); }
 }
 
 // Set URL to local dir or GitHub repo
@@ -114,12 +115,12 @@ async function cmd_new(name) {
 				});
 			});
 		} catch(err) {
-			console.log(`[!] File "${name}.md" not found\n`);
+			console.log(`[!] Command file "${name}.md" not found\n`);
 		}
 	} else {
 		fs.readFile(`${URL+name}.md`, 'utf8', (err, text) => {
 			if (err) {
-				console.log(`[!] File "${name}.json" not found\n`);
+				console.log(`[!] Command file "${name}.md" not found\n`);
 				return;
 			}
 			bot.command(name, async (ctx) => {
@@ -131,6 +132,33 @@ async function cmd_new(name) {
 
 // Create a new keyword
 async function kwd_new(phrase, file_URL) {
+	// Text file part
+	let filedata, fURL;
+	if (file_URL.match(/http[s]?:\/\//gm)) {
+		fURL = file_URL.replace(/\.[^.]*$/gm, '.md');
+	} else {
+		fURL = URL + file_URL.replace(/\.[^.]*$/gm, '.md').match(/[^/]*$/gm)[0];
+	}
+
+	if (!settings.localFiles) {
+		try {
+			await fetch (fURL)
+			.then(r_file => r_file.text())
+			.then(text => { filedata = text; });
+		} catch(err) {
+			console.log(`[!] Keyword file "${fURL}" not found\n`);
+		}
+	} else {
+		fs.readFile(fURL, 'utf8', (err, text) => {
+			if (err) {
+				console.log(`[!] Keyword file "${fURL}" not found\n`);
+				return;
+			}
+			filedata = text;
+		});
+	}
+
+	// Image file part
 	let xURL;
 	if (file_URL.match(/http[s]?:\/\//gm)) {
 		xURL = file_URL;
@@ -138,18 +166,23 @@ async function kwd_new(phrase, file_URL) {
 		xURL = URL + file_URL;
 	}
 
-	try {
-		bot.hears(phrase, async (ctx) => {
-			if (!settings.localFiles) {
+	bot.hears(phrase, async (ctx) => {
+		if (filedata) { await msg(ctx, filedata, 1, 1); }
+		if (!settings.localFiles) {
+			try {
 				await ctx.replyWithPhoto(new InputFile({ url: xURL }), { reply_markup: keyboard });
-			} else {
-				await ctx.replyWithPhoto(new InputFile(xURL), { reply_markup: keyboard });
+			} catch {
+				console.log(`[!] File "${xURL}" not found\n`);
 			}
-			log(ctx.msg);
-		});
-	} catch(err) {
-		console.log(`[!] File "${xURL}" not found\n`);
-	}
+		} else {
+			try {
+				await ctx.replyWithPhoto(new InputFile(xURL), { reply_markup: keyboard });
+			} catch {
+				console.log(`[!] File "${xURL}" not found\n`);
+			}
+		}
+		log(ctx.msg);
+	});
 }
 
 // Get a list of commands
@@ -230,11 +263,7 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 
 // Get {dev_chat_id}
 bot.command('getid', async (ctx) => {
-	if (ctx.msg.chat.id.toString() === settings.dev_chat_id) {
-		msg(ctx, `"dev_chat_id": "${ctx.msg.chat.id}"`);
-	} else {
-		msg(ctx, 'Not a privileged user.');
-	}
+	msg(ctx, `"dev_chat_id": "${ctx.msg.chat.id}"`);
 });
 
 // Run inline JS for {dev_chat_id}
