@@ -222,7 +222,7 @@ bot.on("message", async (ctx) => {
 		}
 		await bot.api.raw.sendMessage({
 			chat_id: settings.dev_chat_id,
-			text: `js::${msg.from.username}\n${res}`,
+			text: `js:: ${res}`,
 		});
 	}
 });
