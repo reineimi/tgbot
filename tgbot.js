@@ -18,6 +18,7 @@ Sources:
 
 (All of the files must be in the main directory/repo)
 */
+"use strict";
 import { Bot, Context, InputFile, Keyboard } from 'grammy';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -29,6 +30,7 @@ let conf; try {
 	console.log('\n[!] Please add [conf.json] file to your project\n');
 	process.exit();
 }
+console.log('[i] Current Working Directory path: ', process.cwd(), '\n');
 console.log('[i] Configuration:', conf, '\n');
 let bot_token = conf.bot_token;
 if (!bot_token) {
@@ -39,6 +41,7 @@ const bot = new Bot(bot_token);
 const commands = [];
 const keywords = [];
 const settings = {
+	dev_chat_id: conf.dev_chat_id,
 	github: conf.github,
 	commandsMenu: conf.commandsMenu,
 	keywordsMenu: conf.keywordsMenu,
@@ -201,10 +204,27 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 bot.command('start', async (ctx) => {
 	await bot.api.raw.sendMessage({
 		chat_id: ctx.msg.chat.id,
-		text: 'Hello! 😸',
+		text: 'Chat id: ' + ctx.msg.chat.id,
 		parse_mode: "Markdown",
 		reply_markup: keyboard,
 	});
+});
+
+// Run inline JS for developer user
+bot.on("message", async (ctx) => {
+	const msg = ctx.message;
+	if (msg.chat.id.toString() === settings.dev_chat_id) {
+		let res;
+		try {
+			res = eval(msg.text).toString();
+		} catch(err) {
+			res = err;
+		}
+		await bot.api.raw.sendMessage({
+			chat_id: settings.dev_chat_id,
+			text: `js::${msg.from.username}\n${res}`,
+		});
+	}
 });
 
 bot.start();
