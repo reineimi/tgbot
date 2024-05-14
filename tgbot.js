@@ -50,6 +50,43 @@ const settings = {
 };
 let URL = '';
 
+// Utility functions
+function date() {
+	let now = new Date()
+	let mm = now.getMonth()+1
+	let dd = now.getDate()
+	let h = now.getHours()
+	let m = now.getMinutes()
+	let s = now.getSeconds()
+	if (mm.toString().length==1) {mm = '0'+mm}
+	if (dd.toString().length==1) {dd = '0'+dd}
+	if (h.toString().length==1) {h = '0'+h}
+	if (m.toString().length==1) {m = '0'+m}
+	if (s.toString().length==1) {s = '0'+s}
+	return `${mm}-${dd} ${h}:${m}:${s}`
+}
+function log(ctx_msg) {
+	console.log(`
+-- ${date()} --
+| in: ${ctx_msg.chat.id}
+| from: ${ctx_msg.from.id}
+| username: ${ctx_msg.from.username}
+| message: ${ctx_msg.text}
+-- -- -- -- -- -- --`);
+}
+async function msg(ctx, text, isMd) {
+	const data = {
+		chat_id: ctx.msg.chat.id,
+		text: text,
+		reply_markup: keyboard,
+	}
+	if (isMd) {
+		data.parse_mode = 'Markdown'
+	}
+	await bot.api.raw.sendMessage(data);
+	log(ctx.msg);
+}
+
 // Set URL to local dir or GitHub repo
 if (settings.github && (settings.github !== '') && (settings.github !== '/') && (!settings.localFiles)) {
 	settings.github = settings.github.replaceAll(' ', '/');
@@ -71,32 +108,22 @@ async function cmd_new(name) {
 		try {
 			await fetch (`${URL+name}.md`)
 			.then(r_file => r_file.text())
-			.then(data => {
+			.then(text => {
 				bot.command(name, async (ctx) => {
-					await bot.api.raw.sendMessage({
-						chat_id: ctx.msg.chat.id,
-						text: data,
-						parse_mode: "Markdown",
-						reply_markup: keyboard,
-					});
+					msg(ctx, text, 1);
 				});
 			});
 		} catch(err) {
 			console.log(`[!] File "${name}.md" not found\n`);
 		}
 	} else {
-		fs.readFile(`${URL+name}.md`, 'utf8', (err, data) => {
+		fs.readFile(`${URL+name}.md`, 'utf8', (err, text) => {
 			if (err) {
 				console.log(`[!] File "${name}.json" not found\n`);
 				return;
 			}
 			bot.command(name, async (ctx) => {
-				await bot.api.raw.sendMessage({
-					chat_id: ctx.msg.chat.id,
-					text: data,
-					parse_mode: "Markdown",
-					reply_markup: keyboard,
-				});
+				msg(ctx, text, 1);
 			});
 		});
 	}
@@ -118,6 +145,7 @@ async function kwd_new(phrase, file_URL) {
 			} else {
 				await ctx.replyWithPhoto(new InputFile(xURL), { reply_markup: keyboard });
 			}
+			log(ctx.msg);
 		});
 	} catch(err) {
 		console.log(`[!] File "${xURL}" not found\n`);
@@ -200,30 +228,28 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 	keyboard = Keyboard.from(buttonRows).resized();
 }
 
-// Initiate and get keywords menu, if available
-bot.command('start', async (ctx) => {
-	await bot.api.raw.sendMessage({
-		chat_id: ctx.msg.chat.id,
-		text: 'Chat id: ' + ctx.msg.chat.id,
-		parse_mode: "Markdown",
-		reply_markup: keyboard,
-	});
+// Get {dev_chat_id}
+bot.command('getid', async (ctx) => {
+	if (ctx.msg.chat.id.toString() === settings.dev_chat_id) {
+		msg(ctx, `"dev_chat_id": "${ctx.msg.chat.id}"`);
+	} else {
+		msg(ctx, 'Not a privileged user.');
+	}
 });
 
-// Run inline JS for developer user
-bot.on("message", async (ctx) => {
-	const msg = ctx.message;
-	if (msg.chat.id.toString() === settings.dev_chat_id) {
-		let res;
+// Run inline JS for {dev_chat_id}
+bot.command("js", async (ctx) => {
+	let res;
+	if (ctx.msg.chat.id.toString() === settings.dev_chat_id) {
 		try {
-			res = eval(msg.text).toString();
+			let str = ctx.msg.text.substring(3, ctx.msg.text.length);
+			res = eval(str).toString();
 		} catch(err) {
 			res = err;
 		}
-		await bot.api.raw.sendMessage({
-			chat_id: settings.dev_chat_id,
-			text: `js:: ${res}`,
-		});
+		msg(ctx, `js:: ${res}`);
+	} else {
+		msg(ctx, 'Not a privileged user.');
 	}
 });
 
