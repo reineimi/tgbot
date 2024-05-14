@@ -19,6 +19,7 @@ if [ "$skip" != 'y' ]; then
 
 	# Generating [conf.json] file
 	read -p '>> (REQUIRED) Telegram bot token: ' bot_token;
+	read -p '>> (OPTIONAL) Your PM chat id: ' pm_id;
 	read -p '>> (OPTIONAL) Your GitHub username: ' gh_user;
 	read -p '>> (OPTIONAL) Your GitHub repo: ' gh_repo;
 	read -p '>> (OPTIONAL) Local HOME path (ex: Docs/MyBot): ' local_path;
@@ -28,6 +29,7 @@ if [ "$skip" != 'y' ]; then
 	touch ~/.tgbot/conf.json;
 echo '{
 	"bot_token": "'"$bot_token"'",
+	"dev_chat_id": "'"$pm_id"'",
 	"github": "'"$gh_user"'/'"$gh_repo"'",
 	"localFiles": '"$is_local"',
 	"localPath": "'"$local_path"'",
