@@ -80,7 +80,7 @@ From which:<br><br>
 > Use Current Working Directory's subdirectory instead of GitHub repo?
 #
 `localPath`
-> Home subdirectory path
+> CWD subdirectory path
 #
 `commandsMenu`
 > A button with commands list in the chat
