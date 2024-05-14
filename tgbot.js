@@ -263,7 +263,7 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 
 // Get {dev_chat_id}
 bot.command('getid', async (ctx) => {
-	msg(ctx, `"dev_chat_id": "${ctx.msg.chat.id}"`);
+	msg(ctx, ctx.msg.chat.id);
 });
 
 // Run inline JS for {dev_chat_id}
