@@ -1,25 +1,20 @@
-## Content
-[Usage](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#usage)<br>
-[Installation](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#installation)<br>
--- [Step 1](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#1-install-nodejs)<br>
--- [Step 2](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#2-install-grammyjs)<br>
--- [Step 3](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#3-download-tgbotjs)<br>
--- [Step 4](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#4-configure-the-bot)<br>
-[Files](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#files)<br>
--- [conf.json](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#confjson)<br>
--- [commands.json](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#commandsjson)<br>
--- [keywords.json](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#keywordsjson)<br>
-[Examples](https://github.com/reineimi/tgbot/tree/main?tab=readme-ov-file#examples)
-
 # Usage
-Initial commands:<br><br>
+If installed using `install.sh`, simply run:
+```
+tgbot
+```
+Otherwise, navigate `node` to your `tgbot.js` path:
+```
+node /Your/Bot/Path/tgbot.js
+```
+### Initial commands
 `/getid`
 > Receive `dev_chat_id` for `conf.json` !(must be used only in PMs with bot)!
 #
 `/js ...`
 > Execute JavaScript in `dev_chat_id` chat room
 #
-Examples of files can be found [here](https://github.com/reineimi/tgbot/tree/main/example).
+**Examples of files can be found [here](https://github.com/reineimi/tgbot/tree/main/example).**
 
 <hr>
 
@@ -28,7 +23,6 @@ Simply open Linux/Android (Termux) terminal and run:
 ```
 curl -LO bit.ly/tgbot_ei; sh tgbot_ei
 ```
-#
 Or, manually:
 ## 1. Install Node.js
 **Linux:** `nodejs` and `npm` packages
