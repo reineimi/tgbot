@@ -49,6 +49,8 @@ In the same `DIR`, add and/or modify `conf.json` as you need.
 <br><br><hr>
 
 # Files
+> Note: None of the files, except for `conf.json`, are required. You can add/remove those you do not need.
+
 ## conf.json
 Will be generated from `install.sh` or created manually. Contains:
 ```json
