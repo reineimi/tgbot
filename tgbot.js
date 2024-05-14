@@ -98,7 +98,7 @@ if (settings.github && (settings.github !== '') && (settings.github !== '/') && 
 	if (settings.localPath) {
 		URL = path.join(process.cwd(), settings.localPath+'/');
 	} else {
-		URL = path.join(process.cwd(), '.tgbot/files/');
+		URL = path.join(process.cwd(), '.tgbot/');
 	}
 	console.log(`[i] GitHub information is not set. Using local directory: ${URL}\n`);
 }
