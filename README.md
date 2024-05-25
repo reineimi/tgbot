@@ -7,6 +7,11 @@ Otherwise, navigate `node` to your `tgbot.js` path:
 ```
 node /Your/Bot/Path/tgbot.js
 ```
+Or, alternatively, use `service_setup.sh` from the [setup](https://github.com/reineimi/tgbot/tree/main/setup) folder (Linux only):
+```
+bash service_setup.sh
+```
+
 ### Initial commands
 `/getid`
 > Receive `dev_chat_id` for `conf.json` !(must be used only in PMs with bot)!
