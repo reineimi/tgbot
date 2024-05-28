@@ -112,14 +112,17 @@ Once you've added a command, create the corresponding `.md` document file in the
 A list of keywords (phrases) with the following syntax:
 ```json
 {
-  "keyword": "filename.extension",
-  "A test": "example.jpg"
+  "keyword": ["filename.extension"],
+  "A test": ["example1.jpg", "example2.png"]
 }
 ```
 > Note: Keywords are buttons/phrases with associated images and text documents.
 
-Same as with commands, we create corresponding files for every keyword, for example:<br>
-`example.jpg` and `example.md`.
+Keywords can use multiple text files:
+- `.md` File for the keyword itself
+- `.txt` File for media caption
+
+For example: `A test.md`, `example1.txt` and `example2.txt`.
 
 <br><br><hr>
 

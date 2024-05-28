@@ -133,20 +133,20 @@ async function cmd_new(name) {
 // Create a new keyword
 async function kwd_new(phrase, files) {
 	// Text part
-	let message = '';
-	let msgURL = URL + phrase.match(/[^/]*$/gm)[0] + '.txt';
+	let message;
+	let msgURL = URL + phrase.match(/[^/]*$/gm)[0] + '.md';
 	if (!settings.localFiles) {
 		try {
 			await fetch (msgURL)
 			.then(r_file => r_file.text())
 			.then(text => { message = text; });
 		} catch(err) {
-			console.log(`[!] Keyword file "${msgURL}" not found\n`);
+			console.log(`[!] File "${msgURL}" not found\n`);
 		}
 	} else {
 		fs.readFile(msgURL, 'utf8', (err, text) => {
 			if (err) {
-				console.log(`[!] Keyword file "${msgURL}" not found\n`);
+				console.log(`[!] File "${msgURL}" not found\n`);
 				return;
 			}
 			message = text;
@@ -154,14 +154,33 @@ async function kwd_new(phrase, files) {
 	}
 
 	// Media part
-	const media = [];
+	const media = [], capts = [];
+
 	for (const f of files) {
-		let iURL;
-		if (f.match(/http[s]?:\/\//gm)) {
-			iURL = f;
+		// Get caption
+		let tURL = URL + f.replace(/\.[^.]*$/gm, '.txt').match(/[^/]*$/gm)[0];
+		if (!settings.localFiles) {
+			try {
+				await fetch (tURL)
+				.then(r_file => r_file.text())
+				.then(text => { capts.push(text); });
+			} catch(err) {
+				console.log(`[!] File "${tURL}" not found\n`);
+			}
 		} else {
-			iURL = URL + f;
+			fs.readFile(tURL, 'utf8', (err, text) => {
+				if (err) {
+					console.log(`[!] File "${tURL}" not found\n`);
+					return;
+				}
+				capts.push(text);
+			});
 		}
+
+		// Get image
+		let iURL;
+		if (f.match(/http[s]?:\/\//gm)) { iURL = f; }
+		else { iURL = URL + f; }
 
 		if (!settings.localFiles) {
 			media.push(new InputFile({ url: iURL }));
@@ -172,9 +191,14 @@ async function kwd_new(phrase, files) {
 
 	// Build media group
 	bot.hears(phrase, async (ctx) => {
-		const mediaGroup = media.map((f) => InputMediaBuilder.photo(f));
+		if (message) { msg(ctx, message, 1); }
+		const mediaGroup = [];
+		for (const v of media) {
+			mediaGroup.push(InputMediaBuilder.photo(v, {
+				caption: capts[media.indexOf(v)]
+			}));
+		}
 		try {
-			mediaGroup[0].caption = message;
 			ctx.replyWithMediaGroup(mediaGroup, {reply_markup: keyboard});
 		} catch(err) {
 			console.log('[!] One of the keyword media files is not found [>] ', err, ' [<]');
