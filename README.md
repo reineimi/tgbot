@@ -113,6 +113,7 @@ A list of keywords (phrases) with the following syntax:
 ```json
 {
   "keyword": ["filename.extension"],
+  "Text only": [],
   "A test": ["example1.jpg", "example2.png"]
 }
 ```

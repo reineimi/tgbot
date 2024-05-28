@@ -198,10 +198,8 @@ async function kwd_new(phrase, files) {
 				caption: capts[media.indexOf(v)]
 			}));
 		}
-		try {
+		if (mediaGroup.length > 0) {
 			ctx.replyWithMediaGroup(mediaGroup, {reply_markup: keyboard});
-		} catch(err) {
-			console.log('[!] One of the keyword media files is not found [>] ', err, ' [<]');
 		}
 		log(ctx.msg);
 	});
