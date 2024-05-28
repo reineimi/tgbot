@@ -191,7 +191,7 @@ async function kwd_new(phrase, files) {
 
 	// Build media group
 	bot.hears(phrase, async (ctx) => {
-		if (message) { msg(ctx, message, 1); }
+		if (message) { msg(ctx, message, 1, 1); }
 		const mediaGroup = [];
 		for (const v of media) {
 			mediaGroup.push(InputMediaBuilder.photo(v, {
