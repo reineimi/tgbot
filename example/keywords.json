@@ -1,4 +1,4 @@
 {
-	"hi": "sus.webp",
-	"bye": "bye.jpg"
+	"Hi": ["sus.webp", "sus.webp"],
+	"Sus cat": ["sus.webp"]
 }

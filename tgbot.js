@@ -7,7 +7,7 @@ Configs:
 		{ "name": "description", ... }
 
 	keywords.json:
-		{ "phrase": "file_URL", ... }
+		{ "phrase": {...file_URLs}, ... }
 
 Sources:
 	Command file:
@@ -19,7 +19,7 @@ Sources:
 (All of the files must be in the main directory/repo)
 */
 "use strict";
-import { Bot, Context, InputFile, Keyboard } from 'grammy';
+import { Bot, Context, InputFile, InputMediaBuilder, Keyboard } from 'grammy';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const path = require('path');
@@ -75,17 +75,17 @@ function log(ctx_msg) {
 -- -- -- -- -- -- --
 `);
 }
-async function msg(ctx, text, isMd, noLog) {
+async function msg(ctx, text, _isMd, _noLog) {
 	const data = {
 		chat_id: ctx.msg.chat.id,
 		text: text,
 		reply_markup: keyboard,
 	}
-	if (isMd) {
+	if (_isMd) {
 		data.parse_mode = 'Markdown'
 	}
 	await bot.api.raw.sendMessage(data);
-	if (!noLog) { log(ctx.msg); }
+	if (!_noLog) { log(ctx.msg); }
 }
 
 // Set URL to local dir or GitHub repo
@@ -98,7 +98,7 @@ if (settings.github && (settings.github !== '') && (settings.github !== '/') && 
 	if (settings.localPath) {
 		URL = path.join(process.cwd(), settings.localPath+'/');
 	} else {
-		URL = path.join(process.cwd(), '.tgbot/');
+		URL = path.join(process.cwd(), '.tgbot/files/');
 	}
 	console.log(`[i] GitHub information is not set. Using local directory: ${URL}\n`);
 }
@@ -131,55 +131,53 @@ async function cmd_new(name) {
 }
 
 // Create a new keyword
-async function kwd_new(phrase, file_URL) {
-	// Text file part
-	let filedata, fURL;
-	if (file_URL.match(/http[s]?:\/\//gm)) {
-		fURL = file_URL.replace(/\.[^.]*$/gm, '.md');
-	} else {
-		fURL = URL + file_URL.replace(/\.[^.]*$/gm, '.md').match(/[^/]*$/gm)[0];
-	}
-
+async function kwd_new(phrase, files) {
+	// Text part
+	let message = '';
+	let msgURL = URL + phrase.match(/[^/]*$/gm)[0] + '.txt';
 	if (!settings.localFiles) {
 		try {
-			await fetch (fURL)
+			await fetch (msgURL)
 			.then(r_file => r_file.text())
-			.then(text => { filedata = text; });
+			.then(text => { message = text; });
 		} catch(err) {
-			console.log(`[!] Keyword file "${fURL}" not found\n`);
+			console.log(`[!] Keyword file "${msgURL}" not found\n`);
 		}
 	} else {
-		fs.readFile(fURL, 'utf8', (err, text) => {
+		fs.readFile(msgURL, 'utf8', (err, text) => {
 			if (err) {
-				console.log(`[!] Keyword file "${fURL}" not found\n`);
+				console.log(`[!] Keyword file "${msgURL}" not found\n`);
 				return;
 			}
-			filedata = text;
+			message = text;
 		});
 	}
 
-	// Image file part
-	let xURL;
-	if (file_URL.match(/http[s]?:\/\//gm)) {
-		xURL = file_URL;
-	} else {
-		xURL = URL + file_URL;
+	// Media part
+	const media = [];
+	for (const f of files) {
+		let iURL;
+		if (f.match(/http[s]?:\/\//gm)) {
+			iURL = f;
+		} else {
+			iURL = URL + f;
+		}
+
+		if (!settings.localFiles) {
+			media.push(new InputFile({ url: iURL }));
+		} else {
+			media.push(new InputFile(iURL));
+		}
 	}
 
+	// Build media group
 	bot.hears(phrase, async (ctx) => {
-		if (filedata) { await msg(ctx, filedata, 1, 1); }
-		if (!settings.localFiles) {
-			try {
-				await ctx.replyWithPhoto(new InputFile({ url: xURL }), { reply_markup: keyboard });
-			} catch {
-				console.log(`[!] File "${xURL}" not found\n`);
-			}
-		} else {
-			try {
-				await ctx.replyWithPhoto(new InputFile(xURL), { reply_markup: keyboard });
-			} catch {
-				console.log(`[!] File "${xURL}" not found\n`);
-			}
+		const mediaGroup = media.map((f) => InputMediaBuilder.photo(f));
+		try {
+			mediaGroup[0].caption = message;
+			ctx.replyWithMediaGroup(mediaGroup, {reply_markup: keyboard});
+		} catch(err) {
+			console.log('[!] One of the keyword media files is not found [>] ', err, ' [<]');
 		}
 		log(ctx.msg);
 	});
@@ -263,7 +261,7 @@ if (settings.keywordsMenu && (settings.keywordsMenu !== '') && (keywords.length 
 
 // Get {dev_chat_id}
 bot.command('getid', async (ctx) => {
-	msg(ctx, ctx.msg.chat.id);
+	msg(ctx, `"dev_chat_id": "${ctx.msg.chat.id}"`);
 });
 
 // Run inline JS for {dev_chat_id}
