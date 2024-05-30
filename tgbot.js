@@ -85,7 +85,7 @@ async function msg(ctx, str, _isPath, _noLog) {
 
 	if (_isPath) {
 		let path = URL + str.match(/[^/]*$/gm)[0] + '.md';
-		console.log('===> path', path);
+
 		if (!settings.localFiles) {
 			try {
 				await fetch (path)
