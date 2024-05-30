@@ -105,7 +105,9 @@ A list of commands with the following syntax:
 > Note: Commands are `/command` actions with associated text documents.
 
 Once you've added a command, create the corresponding `.md` document file in the same directory:<br>
-`command.md` (example: `test.md`).
+`command.md` (example: `test.md`).<br>
+
+You can also add one `JPG` image to the command (example: `test.jpg`).
 
 #
 ## keywords.json
