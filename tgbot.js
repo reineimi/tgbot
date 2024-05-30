@@ -168,7 +168,7 @@ async function img(ctx, paths) {
 	}
 }
 
-async function parsejson(fname, array_to, _func) {
+async function parsejson(fname, func) {
 	if (!settings.localFiles) {
 		try {
 			await fetch (`${URL+fname}.json`)
@@ -176,8 +176,7 @@ async function parsejson(fname, array_to, _func) {
 			.then(data => {
 				console.log(`[+] ${fname}: `, data, '\n');
 				for (const [i, v] of Object.entries(data)) {
-					array_to.push(i);
-					_func(i, v);
+					func(i, v);
 				}
 			});
 		} catch (err) {
@@ -189,8 +188,7 @@ async function parsejson(fname, array_to, _func) {
 			let data = require(`${URL+fname}.json`);
 			console.log(`[+] ${fname}: `, data, '\n');
 			for (const [i, v] of Object.entries(data)) {
-				array_to.push(i);
-				_func(i, v);
+				func(i, v);
 			}
 		} catch(err) {
 			console.log(`[!] File "${URL+fname}.json" not found`);
@@ -232,13 +230,20 @@ async function kwd_new(phrase, files) {
 }
 
 // Get a list of commands
-parsejson('commands', commands, (i,v)=>{ cmd_new(i,v[1]); });
+parsejson('commands', (i,v)=>{
+	let info = v[0] || '';
+	commands.push({ command: i, description: info });
+	cmd_new(i, v[1]);
+});
 
 // Get a list of keywords
-parsejson('keywords', keywords, (i,v)=>{ kwd_new(i,v); });
+parsejson('keywords', (i,v)=>{
+	keywords.push(i);
+	kwd_new(i, v);
+});
 
 // Set visibility of the menus
-if (settings.commandsMenu && (settings.commandsMenu !== '') && (commands.length > 0)) {
+if (settings.commandsMenu && (settings.commandsMenu !== '')) {
 	await bot.api.setMyCommands(commands);
 }
 let keyboard = {};
