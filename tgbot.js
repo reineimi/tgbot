@@ -123,7 +123,6 @@ async function img(ctx, paths) {
 	for (const f of items) {
 		// Get caption
 		let tURL = URL + f.replace(/\.[^.]*$/gm, '.txt').match(/[^/]*$/gm)[0];
-
 		if (!settings.localFiles) {
 			try {
 				await fetch (tURL)
@@ -137,7 +136,6 @@ async function img(ctx, paths) {
 				fs.readFile(tURL, 'utf8', (err, text) => {
 					if (err) {
 						console.log(`[!] File "${tURL}" not found\n`);
-						return;
 					}
 					capts.push(text);
 					r(1);
@@ -160,7 +158,7 @@ async function img(ctx, paths) {
 	// Parse files
 	for (const v of media) {
 		mediaGroup.push(InputMediaBuilder.photo(v, {
-			caption: capts[media.indexOf(v)]
+			caption: capts[media.indexOf(v)] || ''
 		}));
 	}
 	if (mediaGroup.length > 0) {
