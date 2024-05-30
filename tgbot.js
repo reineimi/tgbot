@@ -75,17 +75,128 @@ function log(ctx_msg) {
 -- -- -- -- -- -- --
 `);
 }
-async function msg(ctx, text, _isMd, _noLog) {
+
+async function msg(ctx, str, _isPath, _noLog) {
 	const data = {
 		chat_id: ctx.msg.chat.id,
-		text: text,
 		reply_markup: keyboard,
+		parse_mode: 'Markdown'
 	}
-	if (_isMd) {
-		data.parse_mode = 'Markdown'
+
+	if (_isPath) {
+		let path = URL + str.match(/[^/]*$/gm)[0] + '.md';
+		console.log('===> path', path);
+		if (!settings.localFiles) {
+			try {
+				await fetch (path)
+				.then(r_file => r_file.text())
+				.then(text => {
+					data.text = text;
+					bot.api.raw.sendMessage(data);
+				});
+			} catch(err) {
+				console.log(`[!] File "${path}" not found\n`);
+			}
+		} else {
+			fs.readFile(path, 'utf8', (err, text) => {
+				if (err) {
+					console.log(`[!] File "${path}" not found\n`);
+					return;
+				}
+				data.text = text;
+				bot.api.raw.sendMessage(data);
+			});
+		}
+	} else {
+		data.text = str;
+		bot.api.raw.sendMessage(data);
 	}
-	await bot.api.raw.sendMessage(data);
+
 	if (!_noLog) { log(ctx.msg); }
+}
+
+async function img(ctx, paths) {
+	const media = [], capts = [], mediaGroup = [];
+	let items = paths || [];
+
+	// Parse paths
+	for (const f of items) {
+		// Get caption
+		let tURL = URL + f.replace(/\.[^.]*$/gm, '.txt').match(/[^/]*$/gm)[0];
+
+		if (!settings.localFiles) {
+			try {
+				await fetch (tURL)
+				.then(r_file => r_file.text())
+				.then(text => { capts.push(text); });
+			} catch(err) {
+				console.log(`[!] File "${tURL}" not found\n`);
+			}
+		} else {
+			await new Promise((r) => {
+				fs.readFile(tURL, 'utf8', (err, text) => {
+					if (err) {
+						console.log(`[!] File "${tURL}" not found\n`);
+						return;
+					}
+					capts.push(text);
+					r(1);
+				});
+			});
+		}
+
+		// Get image
+		let iURL;
+		if (f.match(/http[s]?:\/\//gm)) { iURL = f; }
+		else { iURL = URL + f; }
+
+		if (!settings.localFiles) {
+			media.push(new InputFile({ url: iURL }));
+		} else {
+			media.push(new InputFile(iURL));
+		}
+	}
+
+	// Parse files
+	for (const v of media) {
+		mediaGroup.push(InputMediaBuilder.photo(v, {
+			caption: capts[media.indexOf(v)]
+		}));
+	}
+	if (mediaGroup.length > 0) {
+		ctx.replyWithMediaGroup(mediaGroup, {reply_markup: keyboard});
+	}
+}
+
+async function parsejson(fname, array_to, _func) {
+	if (!settings.localFiles) {
+		try {
+			await fetch (`${URL+fname}.json`)
+			.then(r_file => r_file.json())
+			.then(data => {
+				console.log(`[+] ${fname}: `, data, '\n');
+				for (const [i, v] of Object.entries(data)) {
+					array_to.push(i);
+					_func(i, v);
+				}
+			});
+		} catch (err) {
+			console.log(`[!] File "${URL+fname}.json" not found`);
+			console.log('[>] Traceback: '+err+' [<]\n');
+		}
+	} else {
+		try {
+			let data = require(`${URL+fname}.json`);
+			console.log(`[+] ${fname}: `, data, '\n');
+			for (const [i, v] of Object.entries(data)) {
+				array_to.push(i);
+				_func(i, v);
+			}
+		} catch(err) {
+			console.log(`[!] File "${URL+fname}.json" not found`);
+			console.log('[>] Traceback: '+err+' [<]\n');
+		}
+	}
 }
 
 // Set URL to local dir or GitHub repo
@@ -104,186 +215,27 @@ if (settings.github && (settings.github !== '') && (settings.github !== '/') && 
 }
 
 // Create a new command
-async function cmd_new(name) {
-	// Optional image part
-	let iURL, image;
-	if (name.match(/http[s]?:\/\//gm)) { iURL = name+'.jpg'; }
-	else { iURL = URL + name + '.jpg'; }
-
-	if (!settings.localFiles) {
-		image = new InputFile({ url: iURL });
-	} else {
-		image = new InputFile(iURL);
-	}
-
-	// Command part
-	if (!settings.localFiles) {
-		try {
-			await fetch (`${URL+name}.md`)
-			.then(r_file => r_file.text())
-			.then(text => {
-				bot.command(name, async (ctx) => {
-					msg(ctx, text, 1);
-					try {ctx.replyWithPhoto(image);} catch {};
-				});
-			});
-		} catch(err) {
-			console.log(`[!] Command file "${name}.md" not found\n`);
-		}
-	} else {
-		fs.readFile(`${URL+name}.md`, 'utf8', (err, text) => {
-			if (err) {
-				console.log(`[!] Command file "${name}.md" not found\n`);
-				return;
-			}
-			bot.command(name, async (ctx) => {
-				msg(ctx, text, 1);
-				try {ctx.replyWithPhoto(image);} catch {};
-			});
-		});
-	}
+async function cmd_new(name, files) {
+	bot.command(name, async (ctx) => {
+		msg(ctx, name, 1);
+		img(ctx, files);
+	});
 }
 
 // Create a new keyword
 async function kwd_new(phrase, files) {
-	// Text part
-	let message;
-	let msgURL = URL + phrase.match(/[^/]*$/gm)[0] + '.md';
-	if (!settings.localFiles) {
-		try {
-			await fetch (msgURL)
-			.then(r_file => r_file.text())
-			.then(text => { message = text; });
-		} catch(err) {
-			console.log(`[!] File "${msgURL}" not found\n`);
-		}
-	} else {
-		fs.readFile(msgURL, 'utf8', (err, text) => {
-			if (err) {
-				console.log(`[!] File "${msgURL}" not found\n`);
-				return;
-			}
-			message = text;
-		});
-	}
-
-	// Media part
-	const media = [], capts = [];
-
-	for (const f of files) {
-		// Get caption
-		let tURL = URL + f.replace(/\.[^.]*$/gm, '.txt').match(/[^/]*$/gm)[0];
-		if (!settings.localFiles) {
-			try {
-				await fetch (tURL)
-				.then(r_file => r_file.text())
-				.then(text => { capts.push(text); });
-			} catch(err) {
-				console.log(`[!] File "${tURL}" not found\n`);
-			}
-		} else {
-			fs.readFile(tURL, 'utf8', (err, text) => {
-				if (err) {
-					console.log(`[!] File "${tURL}" not found\n`);
-					return;
-				}
-				capts.push(text);
-			});
-		}
-
-		// Get image
-		let iURL;
-		if (f.match(/http[s]?:\/\//gm)) { iURL = f; }
-		else { iURL = URL + f; }
-
-		if (!settings.localFiles) {
-			media.push(new InputFile({ url: iURL }));
-		} else {
-			media.push(new InputFile(iURL));
-		}
-	}
-
-	// Build media group
 	bot.hears(phrase, async (ctx) => {
-		if (message) { msg(ctx, message, 1, 1); }
-		const mediaGroup = [];
-		for (const v of media) {
-			mediaGroup.push(InputMediaBuilder.photo(v, {
-				caption: capts[media.indexOf(v)]
-			}));
-		}
-		if (mediaGroup.length > 0) {
-			ctx.replyWithMediaGroup(mediaGroup, {reply_markup: keyboard});
-		}
+		msg(ctx, phrase, 1);
+		img(ctx, files);
 		log(ctx.msg);
 	});
 }
 
 // Get a list of commands
-if (!settings.localFiles) {
-	try {
-		await fetch (`${URL}commands.json`)
-		.then(r_file => r_file.json())
-		.then(data => {
-			console.log('[+] Commands: ', data, '\n');
-			for (const [i, v] of Object.entries(data)) {
-				commands.push({
-					command: i,
-					description: v
-				});
-				cmd_new(i);
-			}
-		});
-	} catch (err) {
-		console.log(`[!] File "${URL}commands.json" not found`);
-		console.log('[>] Traceback: '+err+' [<]\n');
-	}
-} else {
-	try {
-		let data = require(`${URL}commands.json`);
-		console.log('[+] Commands: ', data, '\n');
-		for (const [i, v] of Object.entries(data)) {
-			commands.push({
-				command: i,
-				description: v
-			});
-			cmd_new(i);
-		}
-	} catch (err) {
-		console.log(`[!] File "${URL}commands.json" not found`);
-		console.log('[>] Traceback: '+err+' [<]\n');
-	}
-}
+parsejson('commands', commands, (i,v)=>{ cmd_new(i,v[1]); });
 
 // Get a list of keywords
-if (!settings.localFiles) {
-	try {
-		await fetch (`${URL}keywords.json`)
-		.then(r_file => r_file.json())
-		.then(data => {
-			console.log('[+] Keywords: ', data, '\n');
-			for (const [i, v] of Object.entries(data)) {
-				keywords.push(i);
-				kwd_new(i, v);
-			}
-		});
-	} catch (err) {
-		console.log(`[!] File "${URL}keywords.json" not found`);
-		console.log('[>] Traceback: '+err+' [<]\n');
-	}
-} else {
-	try {
-		let data = require(`${URL}keywords.json`);
-		console.log('[+] Keywords: ', data, '\n');
-		for (const [i, v] of Object.entries(data)) {
-			keywords.push(i);
-			kwd_new(i, v);
-		}
-	} catch(err) {
-		console.log(`[!] File "${URL}keywords.json" not found`);
-		console.log('[>] Traceback: '+err+' [<]\n');
-	}
-}
+parsejson('keywords', keywords, (i,v)=>{ kwd_new(i,v); });
 
 // Set visibility of the menus
 if (settings.commandsMenu && (settings.commandsMenu !== '') && (commands.length > 0)) {
