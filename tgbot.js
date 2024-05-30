@@ -105,6 +105,18 @@ if (settings.github && (settings.github !== '') && (settings.github !== '/') && 
 
 // Create a new command
 async function cmd_new(name) {
+	// Optional image part
+	let iURL, image;
+	if (name.match(/http[s]?:\/\//gm)) { iURL = name+'.jpg'; }
+	else { iURL = URL + name + '.jpg'; }
+
+	if (!settings.localFiles) {
+		image = new InputFile({ url: iURL });
+	} else {
+		image = new InputFile(iURL);
+	}
+
+	// Command part
 	if (!settings.localFiles) {
 		try {
 			await fetch (`${URL+name}.md`)
@@ -112,6 +124,7 @@ async function cmd_new(name) {
 			.then(text => {
 				bot.command(name, async (ctx) => {
 					msg(ctx, text, 1);
+					try {ctx.replyWithPhoto(image);} catch {};
 				});
 			});
 		} catch(err) {
@@ -125,6 +138,7 @@ async function cmd_new(name) {
 			}
 			bot.command(name, async (ctx) => {
 				msg(ctx, text, 1);
+				try {ctx.replyWithPhoto(image);} catch {};
 			});
 		});
 	}
